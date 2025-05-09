@@ -1,0 +1,1645 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskQuest - نظم أعمالك كلعبة</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --accent: #fd79a8;
+            --dark: #2d3436;
+            --light: #f5f6fa;
+            --success: #00b894;
+            --warning: #fdcb6e;
+            --danger: #d63031;
+            --level-up: #ffeaa7;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: var(--dark);
+            background-image: radial-gradient(circle at 10% 20%, rgba(162, 155, 254, 0.1) 0%, rgba(108, 92, 231, 0.05) 90%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        /* تصميم الهيدر */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px 0;
+            border-radius: 0 0 20px 20px;
+            box-shadow: 0 10px 30px rgba(108, 92, 231, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: rotate(30deg);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo i {
+            font-size: 2.5rem;
+            color: var(--accent);
+        }
+        
+        .logo h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logo span {
+            color: var(--accent);
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 15px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .user-profile:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .user-level {
+            background: var(--level-up);
+            color: var(--dark);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .user-level i {
+            color: var(--warning);
+        }
+        
+        /* قسم الإحصائيات */
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+        }
+        
+        .stat-card:nth-child(2)::after {
+            background: var(--success);
+        }
+        
+        .stat-card:nth-child(3)::after {
+            background: var(--warning);
+        }
+        
+        .stat-card:nth-child(4)::after {
+            background: var(--accent);
+        }
+        
+        .stat-title {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-change {
+            font-size: 0.8rem;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .stat-change.negative {
+            color: var(--danger);
+        }
+        
+        /* قسم المهام الرئيسي */
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        
+        /* القائمة الجانبية */
+        .sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            height: fit-content;
+        }
+        
+        .sidebar-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-title i {
+            color: var(--accent);
+        }
+        
+        .category-list {
+            list-style: none;
+        }
+        
+        .category-item {
+            padding: 12px 15px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        
+        .category-item:hover {
+            background: rgba(108, 92, 231, 0.1);
+        }
+        
+        .category-item.active {
+            background: linear-gradient(90deg, rgba(108, 92, 231, 0.1), rgba(108, 92, 231, 0.05));
+            color: var(--primary);
+            font-weight: 600;
+        }
+        
+        .category-item.active::before {
+            content: "";
+            position: absolute;
+            right: -20px;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+        
+        .category-count {
+            margin-right: auto;
+            background: rgba(0,0,0,0.05);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+        
+        .category-item.active .category-count {
+            background: rgba(108, 92, 231, 0.2);
+        }
+        
+        .add-category {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--primary);
+            margin-top: 15px;
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+        
+        .add-category:hover {
+            background: rgba(108, 92, 231, 0.1);
+        }
+        
+        /* قسم الإنجازات */
+        .achievements {
+            margin-top: 30px;
+        }
+        
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background: rgba(253, 121, 168, 0.05);
+        }
+        
+        .achievement-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent), #ff7675);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .achievement-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 3px;
+        }
+        
+        .achievement-info p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .progress-bar {
+            height: 5px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 5px;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), #ff7675);
+            border-radius: 5px;
+            width: 65%;
+        }
+        
+        /* منطقة المهام */
+        .tasks-area {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .tasks-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .tasks-actions {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5a4bd4;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: rgba(108, 92, 231, 0.1);
+        }
+        
+        .task-filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filter-btn {
+            padding: 8px 15px;
+            border-radius: 20px;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .filter-btn:hover:not(.active) {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        /* قائمة المهام */
+        .task-list {
+            list-style: none;
+        }
+        
+        .task-item {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            background: white;
+            border: 1px solid rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .task-item::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, rgba(108, 92, 231, 0.03), rgba(108, 92, 231, 0.01));
+            z-index: 0;
+        }
+        
+        .task-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            margin-left: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .task-checkbox.checked {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+        
+        .task-title {
+            font-weight: 600;
+            flex-grow: 1;
+        }
+        
+        .task-title.completed {
+            text-decoration: line-through;
+            color: #999;
+        }
+        
+        .task-priority {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-right: 10px;
+        }
+        
+        .priority-high {
+            background: rgba(214, 48, 49, 0.1);
+            color: var(--danger);
+        }
+        
+        .priority-medium {
+            background: rgba(253, 203, 110, 0.1);
+            color: #e17055;
+        }
+        
+        .priority-low {
+            background: rgba(0, 184, 148, 0.1);
+            color: var(--success);
+        }
+        
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .task-action-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: #666;
+        }
+        
+        .task-action-btn:hover {
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--primary);
+        }
+        
+        .task-details {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .task-detail {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .task-detail i {
+            font-size: 0.9rem;
+        }
+        
+        .task-category {
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            background: rgba(108, 92, 231, 0.1);
+            color: var(--primary);
+        }
+        
+        .xp-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 234, 167, 0.3);
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #e17055;
+        }
+        
+        .xp-badge i {
+            color: var(--warning);
+        }
+        
+        /* نموذج إضافة مهمة */
+        .add-task-form {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .form-title {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .form-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+            outline: none;
+        }
+        
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn-cancel {
+            background: rgba(0,0,0,0.05);
+            color: var(--dark);
+        }
+        
+        .btn-cancel:hover {
+            background: rgba(0,0,0,0.1);
+        }
+        
+        /* قسم التقدم */
+        .progress-section {
+            margin-top: 40px;
+        }
+        
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .progress-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .progress-stats {
+            display: flex;
+            gap: 30px;
+        }
+        
+        .progress-stat {
+            text-align: center;
+        }
+        
+        .progress-stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+        
+        .progress-stat-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .progress-bar-large {
+            height: 15px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 10px;
+            margin: 30px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .progress-fill-large {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            width: 75%;
+            position: relative;
+            transition: width 1s ease-in-out;
+        }
+        
+        .progress-fill-large::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                            rgba(255,255,255,0.1) 0%, 
+                            rgba(255,255,255,0.3) 50%, 
+                            rgba(255,255,255,0.1) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+            border-radius: 10px;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        
+        .progress-milestones {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 40px;
+        }
+        
+        .milestone {
+            position: relative;
+            text-align: center;
+            width: 60px;
+        }
+        
+        .milestone-dot {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 3px solid #ddd;
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .milestone.active .milestone-dot {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+        
+        .milestone.completed .milestone-dot {
+            border-color: var(--success);
+            background: var(--success);
+        }
+        
+        .milestone-label {
+            font-size: 0.8rem;
+            color: #666;
+        }
+        
+        .milestone-line {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #ddd;
+            z-index: 0;
+        }
+        
+        .milestone-line-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: var(--success);
+            width: 50%;
+        }
+        
+        /* قسم الجوائز */
+        .rewards-section {
+            margin-top: 50px;
+        }
+        
+        .rewards-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .rewards-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .rewards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .reward-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .reward-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .reward-card.locked {
+            opacity: 0.6;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .reward-card.locked::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.7);
+        }
+        
+        .reward-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .reward-card.locked .reward-icon {
+            background: linear-gradient(135deg, #ddd, #999);
+        }
+        
+        .reward-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .reward-description {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .reward-xp {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: var(--warning);
+            font-weight: 600;
+        }
+        
+        .lock-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+            background: rgba(0,0,0,0.7);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        /* تأثيرات الألعاب */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background-color: var(--accent);
+            opacity: 0;
+            z-index: 1000;
+            animation: confetti-fall 3s ease-in-out forwards;
+        }
+        
+        @keyframes confetti-fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .level-up-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.5);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1001;
+            opacity: 0;
+            transition: all 0.5s;
+            max-width: 80%;
+        }
+        
+        .level-up-popup.show {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        .level-up-icon {
+            font-size: 4rem;
+            color: var(--warning);
+            margin-bottom: 20px;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-20px); }
+        }
+        
+        .level-up-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .level-up-message {
+            font-size: 1.2rem;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+        
+        .level-up-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .level-up-button:hover {
+            background: #5a4bd4;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+        }
+        
+        /* تصميم متجاوب */
+        @media (max-width: 992px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+            
+            .user-profile {
+                margin-top: 10px;
+            }
+            
+            .tasks-actions {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .progress-stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .task-header {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .task-priority {
+                margin-right: 0;
+            }
+            
+            .task-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .task-details {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الهيدر -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-tasks"></i>
+                    <h1>Task<span>Quest</span></h1>
+                </div>
+                <div class="user-profile">
+                    <div class="user-avatar">م</div>
+                    <div class="user-info">
+                        <div class="user-name">محمد أحمد</div>
+                        <div class="user-level">
+                            <i class="fas fa-trophy"></i>
+                            المستوى 5
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- إحصائيات سريعة -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-title">
+                    <i class="fas fa-check-circle"></i>
+                    المهام المكتملة
+                </div>
+                <div class="stat-value">127</div>
+                <div class="stat-change">
+                    <i class="fas fa-arrow-up"></i>
+                    12% عن الشهر الماضي
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">
+                    <i class="fas fa-bolt"></i>
+                    الإنتاجية
+                </div>
+                <div class="stat-value">88%</div>
+                <div class="stat-change">
+                    <i class="fas fa-arrow-up"></i>
+                    5% عن الأسبوع الماضي
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">
+                    <i class="fas fa-star"></i>
+                    النقاط
+                </div>
+                <div class="stat-value">2,450</div>
+                <div class="stat-change">
+                    <i class="fas fa-arrow-up"></i>
+                    320 هذا الأسبوع
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">
+                    <i class="fas fa-trophy"></i>
+                    الجوائز
+                </div>
+                <div class="stat-value">8</div>
+                <div class="stat-change">
+                    <i class="fas fa-arrow-up"></i>
+                    جائزة جديدة!
+                </div>
+            </div>
+        </div>
+        
+        <!-- المحتوى الرئيسي -->
+        <div class="main-content">
+            <!-- القائمة الجانبية -->
+            <div class="sidebar">
+                <h2 class="sidebar-title">
+                    <i class="fas fa-folder-open"></i>
+                    الفئات
+                </h2>
+                <ul class="category-list">
+                    <li class="category-item active">
+                        <i class="fas fa-inbox"></i>
+                        جميع المهام
+                        <span class="category-count">15</span>
+                    </li>
+                    <li class="category-item">
+                        <i class="fas fa-briefcase"></i>
+                        العمل
+                        <span class="category-count">8</span>
+                    </li>
+                    <li class="category-item">
+                        <i class="fas fa-home"></i>
+                        الشخصية
+                        <span class="category-count">4</span>
+                    </li>
+                    <li class="category-item">
+                        <i class="fas fa-heart"></i>
+                        الصحة
+                        <span class="category-count">2</span>
+                    </li>
+                    <li class="category-item">
+                        <i class="fas fa-graduation-cap"></i>
+                        التعلم
+                        <span class="category-count">1</span>
+                    </li>
+                </ul>
+                <div class="add-category">
+                    <i class="fas fa-plus"></i>
+                    إضافة فئة جديدة
+                </div>
+                
+                <!-- الإنجازات -->
+                <div class="achievements">
+                    <h2 class="sidebar-title">
+                        <i class="fas fa-trophy"></i>
+                        إنجازاتي
+                    </h2>
+                    <div class="achievement-item">
+                        <div class="achievement-icon">
+                            <i class="fas fa-check-double"></i>
+                        </div>
+                        <div class="achievement-info">
+                            <h4>منجز محترف</h4>
+                            <p>أكمل 100 مهمة</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="achievement-item">
+                        <div class="achievement-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="achievement-info">
+                            <h4>سلسلة النجاح</h4>
+                            <p>5 أيام متتالية من الإنجاز</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 60%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- منطقة المهام -->
+            <div class="tasks-area">
+                <div class="tasks-header">
+                    <h2 class="tasks-title">مهامي اليوم</h2>
+                    <div class="tasks-actions">
+                        <button class="btn btn-outline">
+                            <i class="fas fa-filter"></i>
+                            تصفية
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            مهمة جديدة
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="task-filters">
+                    <button class="filter-btn active">الكل</button>
+                    <button class="filter-btn">العمل</button>
+                    <button class="filter-btn">الشخصية</button>
+                    <button class="filter-btn">مهم</button>
+                    <button class="filter-btn">قريب</button>
+                </div>
+                
+                <ul class="task-list">
+                    <li class="task-item">
+                        <div class="task-header">
+                            <div class="task-checkbox">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="task-title">إنهاء تقرير المشروع الشهري</div>
+                            <span class="task-priority priority-high">عالي</span>
+                            <div class="task-actions">
+                                <button class="task-action-btn">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="task-action-btn">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="task-details">
+                            <div class="task-detail">
+                                <i class="far fa-calendar-alt"></i>
+                                غداً 10:00 ص
+                            </div>
+                            <div class="task-detail">
+                                <i class="fas fa-tag"></i>
+                                <span class="task-category">العمل</span>
+                            </div>
+                            <div class="task-detail">
+                                <i class="fas fa-star"></i>
+                                <span class="xp-badge">
+                                    <i class="fas fa-bolt"></i>
+                                    50 XP
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="task-item">
+                        <div class="task-header">
+                            <div class="task-checkbox checked">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="task-title completed">اجتماع مع فريق التطوير</div>
+                            <span class="task-priority priority-medium">متوسط</span>
+                            <div class="task-actions">
+                                <button class="task-action-btn">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="task-action-btn">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="task-details">
+                            <div class="task-detail">
+                                <i class="far fa-calendar-alt"></i>
+                                اليوم 2:00 م
+                            </div>
+                            <div class="task-detail">
+                                <i class="fas fa-tag"></i>
+                                <span class="task-category">العمل</span>
+                            </div>
+                            <div class="task-detail">
+                                <i class="fas fa-star"></i>
+                                <span class="xp-badge">
+                                    <i class="fas fa-bolt"></i>
+                                    30 XP
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="task-item">
+                        <div class="task-header">
+                            <div class="task-checkbox">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="task-title">التدريب في النادي الرياضي</div>
+                            <span class="task-priority priority-low">منخفض</span>
+                            <div class="task-actions">
+                                <button class="task-action-btn">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="task-action-btn">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="task-details">
+                            <div class="task-detail">
+                                <i class="far fa-calendar-alt"></i>
+                                اليوم 6:00 م
+                            </div>
+                            <div class="task-detail">
+                                <i class="fas fa-tag"></i>
+                                <span class="task-category">الصحة</span>
+                            </div>
+                            <div class="task-detail">
+                                <i class="fas fa-star"></i>
+                                <span class="xp-badge">
+                                    <i class="fas fa-bolt"></i>
+                                    20 XP
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    
+                    <li class="task-item">
+                        <div class="task-header">
+                            <div class="task-checkbox">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <div class="task-title">قراءة كتاب تطوير الذات</div>
+                            <span class="task-priority priority-medium">متوسط</span>
+                            <div class="task-actions">
+                                <button class="task-action-btn">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="task-action-btn">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="task-details">
+                            <div class="task-detail">
+                                <i class="far fa-calendar-alt"></i>
+                                كل يوم
+                            </div>
+                            <div class="task-detail">
+                                <i class="fas fa-tag"></i>
+                                <span class="task-category">التعلم</span>
+                            </div>
+                            <div class="task-detail">
+                                <i class="fas fa-star"></i>
+                                <span class="xp-badge">
+                                    <i class="fas fa-bolt"></i>
+                                    15 XP
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+                
+                <!-- نموذج إضافة مهمة -->
+                <div class="add-task-form" style="display: none;">
+                    <h3 class="form-title">
+                        <i class="fas fa-plus-circle"></i>
+                        إضافة مهمة جديدة
+                    </h3>
+                    <div class="form-group">
+                        <label for="task-title" class="form-label">عنوان المهمة</label>
+                        <input type="text" id="task-title" class="form-input" placeholder="ماذا تريد أن تفعل؟">
+                    </div>
+                    <div class="form-group">
+                        <label for="task-description" class="form-label">الوصف (اختياري)</label>
+                        <textarea id="task-description" class="form-input form-textarea" placeholder="أضف بعض التفاصيل..."></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-category" class="form-label">الفئة</label>
+                            <select id="task-category" class="form-input">
+                                <option value="work">العمل</option>
+                                <option value="personal">الشخصية</option>
+                                <option value="health">الصحة</option>
+                                <option value="learning">التعلم</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-priority" class="form-label">الأولوية</label>
+                            <select id="task-priority" class="form-input">
+                                <option value="high">عالي</option>
+                                <option value="medium" selected>متوسط</option>
+                                <option value="low">منخفض</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="task-date" class="form-label">التاريخ</label>
+                            <input type="date" id="task-date" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label for="task-time" class="form-label">الوقت</label>
+                            <input type="time" id="task-time" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-cancel">إلغاء</button>
+                        <button class="btn btn-primary">إضافة المهمة</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- قسم التقدم -->
+        <div class="progress-section">
+            <div class="progress-header">
+                <h2 class="progress-title">تقدمي هذا الأسبوع</h2>
+                <div class="progress-stats">
+                    <div class="progress-stat">
+                        <div class="progress-stat-value">85%</div>
+                        <div class="progress-stat-label">معدل الإنجاز</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-stat-value">12</div>
+                        <div class="progress-stat-label">مهام مكتملة</div>
+                    </div>
+                    <div class="progress-stat">
+                        <div class="progress-stat-value">3.2</div>
+                        <div class="progress-stat-label">ساعات/يوم</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="progress-bar-large">
+                <div class="progress-fill-large"></div>
+            </div>
+            
+            <div class="progress-milestones">
+                <div class="milestone completed">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-label">الاثنين</div>
+                </div>
+                <div class="milestone completed">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-label">الثلاثاء</div>
+                </div>
+                <div class="milestone completed">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-label">الأربعاء</div>
+                </div>
+                <div class="milestone active">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-label">الخميس</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-label">الجمعة</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-label">السبت</div>
+                </div>
+                <div class="milestone">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-label">الأحد</div>
+                </div>
+                <div class="milestone-line">
+                    <div class="milestone-line-fill"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- قسم الجوائز -->
+        <div class="rewards-section">
+            <div class="rewards-header">
+                <h2 class="rewards-title">جوائز يمكنك الفوز بها</h2>
+                <div class="xp-badge" style="font-size: 1rem;">
+                    <i class="fas fa-bolt"></i>
+                    1,250 / 2,000 XP للجائزة التالية
+                </div>
+            </div>
+            
+            <div class="rewards-grid">
+                <div class="reward-card">
+                    <div class="reward-icon">
+                        <i class="fas fa-medal"></i>
+                    </div>
+                    <h3 class="reward-name">المبتدئ المنتج</h3>
+                    <p class="reward-description">أكمل 10 مهام لتحصل على هذه الجائزة</p>
+                    <div class="reward-xp">
+                        <i class="fas fa-bolt"></i>
+                        100 XP
+                    </div>
+                </div>
+                
+                <div class="reward-card">
+                    <div class="reward-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h3 class="reward-name">سلسلة النجاح</h3>
+                    <p class="reward-description">أكمل مهامك لمدة 7 أيام متتالية</p>
+                    <div class="reward-xp">
+                        <i class="fas fa-bolt"></i>
+                        250 XP
+                    </div>
+                </div>
+                
+                <div class="reward-card locked">
+                    <div class="lock-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="reward-icon">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <h3 class="reward-name">بطل الإنتاجية</h3>
+                    <p class="reward-description">أكمل 50 مهمة خلال شهر واحد</p>
+                    <div class="reward-xp">
+                        <i class="fas fa-bolt"></i>
+                        500 XP
+                    </div>
+                </div>
+                
+                <div class="reward-card locked">
+                    <div class="lock-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div class="reward-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3 class="reward-name">المحترف المنظم</h3>
+                    <p class="reward-description">وصل إلى المستوى 10 في التطبيق</p>
+                    <div class="reward-xp">
+                        <i class="fas fa-bolt"></i>
+                        1000 XP
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- نافذة الترقية -->
+    <div class="level-up-popup">
+        <div class="level-up-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <h2 class="level-up-title">تهانينا!</h2>
+        <p class="level-up-message">لقد رقيت إلى المستوى 6</p>
+        <button class="level-up-button">رائع! شكراً</button>
+    </div>
+    
+    <script>
+        // تفعيل النافذة المنبثقة للترقية
+        document.addEventListener('DOMContentLoaded', function() {
+            // عرض نافذة الترقية بعد 3 ثواني (للتجربة فقط)
+            setTimeout(function() {
+                document.querySelector('.level-up-popup').classList.add('show');
+                
+                // إنشاء تأثيرات الكونفيتي
+                createConfetti();
+            }, 3000);
+            
+            // إخفاء النافذة عند النقر على الزر
+            document.querySelector('.level-up-button').addEventListener('click', function() {
+                document.querySelector('.level-up-popup').classList.remove('show');
+            });
+            
+            // تبديل عرض نموذج إضافة مهمة
+            document.querySelector('.btn-primary').addEventListener('click', function() {
+                document.querySelector('.add-task-form').style.display = 'block';
+            });
+            
+            document.querySelector('.btn-cancel').addEventListener('click', function() {
+                document.querySelector('.add-task-form').style.display = 'none';
+            });
+            
+            // تبديل حالة المهمة عند النقر على checkbox
+            document.querySelectorAll('.task-checkbox').forEach(function(checkbox) {
+                checkbox.addEventListener('click', function() {
+                    const taskItem = this.closest('.task-item');
+                    const taskTitle = taskItem.querySelector('.task-title');
+                    
+                    if (this.classList.contains('checked')) {
+                        this.classList.remove('checked');
+                        taskTitle.classList.remove('completed');
+                    } else {
+                        this.classList.add('checked');
+                        taskTitle.classList.add('completed');
+                    }
+                });
+            });
+            
+            // تفعيل أزرار التصفية
+            document.querySelectorAll('.filter-btn').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    document.querySelectorAll('.filter-btn').forEach(function(b) {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+            
+            // تفعيل عناصر القائمة الجانبية
+            document.querySelectorAll('.category-item').forEach(function(item) {
+                item.addEventListener('click', function() {
+                    document.querySelectorAll('.category-item').forEach(function(i) {
+                        i.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                });
+            });
+        });
+        
+        // دالة لإنشاء تأثيرات الكونفيتي
+        function createConfetti() {
+            const colors = ['#6c5ce7', '#a29bfe', '#fd79a8', '#00b894', '#fdcb6e'];
+            
+            for (let i = 0; i < 100; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.width = Math.random() * 10 + 5 + 'px';
+                confetti.style.height = Math.random() * 10 + 5 + 'px';
+                confetti.style.animationDuration = Math.random() * 3 + 2 + 's';
+                confetti.style.animationDelay = Math.random() * 2 + 's';
+                
+                document.body.appendChild(confetti);
+                
+                // إزالة الكونفيتي بعد انتهاء الحركة
+                setTimeout(function() {
+                    confetti.remove();
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>
